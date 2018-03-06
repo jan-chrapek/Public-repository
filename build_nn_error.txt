@@ -1,0 +1,107 @@
+-
+InvalidArgumentError                      Traceback (most recent call last)
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\common_shapes.py in _call_cpp_shape_fn_impl(op, input_tensors_needed, input_tensors_as_shapes_needed, require_shape_fn)
+    685           graph_def_version, node_def_str, input_shapes, input_tensors,
+--> 686           input_tensors_as_shapes, status)
+    687   except errors.InvalidArgumentError as err:
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\errors_impl.py in __exit__(self, type_arg, value_arg, traceback_arg)
+    472             compat.as_text(c_api.TF_Message(self.status.status)),
+--> 473             c_api.TF_GetCode(self.status.status))
+    474     # Delete the underlying status object from memory otherwise it stays alive
+
+InvalidArgumentError: Dimension size must be evenly divisible by 27 but is 163840 for 'Reshape' (op: 'Reshape') with input shapes: [128,5,256], [2] and with input tensors computed as partial shapes: input[1] = [?,27].
+
+During handling of the above exception, another exception occurred:
+
+ValueError                                Traceback (most recent call last)
+<ipython-input-14-0a836973b133> in <module>()
+     53 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
+     54 """
+---> 55 tests.test_build_nn(build_nn)
+
+~\Documents\Fortrus\Udacity\deep-learning\tv-script-generation\problem_unittests.py in test_build_nn(build_nn)
+    253         test_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(test_rnn_size) for _ in range(test_rnn_layer_size)])
+    254 
+--> 255         logits, final_state = build_nn(test_cell, test_rnn_size, test_input_data, test_vocab_size, test_embed_dim)
+    256 
+    257         # Check name
+
+<ipython-input-14-0a836973b133> in build_nn(cell, rnn_size, input_data, vocab_size, embed_dim)
+     45     outputs, FinalState = build_rnn(cell, inputs)
+     46     in_size=vocab_size #?
+---> 47     Logits, _ = build_output(outputs, in_size, vocab_size)
+     48 
+     49     return Logits, FinalState
+
+<ipython-input-14-0a836973b133> in build_output(lstm_output, in_size, out_size)
+     14     # That is, the shape should be batch_size*num_steps rows by lstm_size columns
+     15     seq_output = tf.concat(lstm_output, axis=1)
+---> 16     x = tf.reshape(seq_output, [-1, in_size])
+     17 
+     18     # Connect the RNN outputs to a softmax layer
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\ops\gen_array_ops.py in reshape(tensor, shape, name)
+   5182   if _ctx.in_graph_mode():
+   5183     _, _, _op = _op_def_lib._apply_op_helper(
+-> 5184         "Reshape", tensor=tensor, shape=shape, name=name)
+   5185     _result = _op.outputs[:]
+   5186     _inputs_flat = _op.inputs
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\op_def_library.py in _apply_op_helper(self, op_type_name, name, **keywords)
+    785         op = g.create_op(op_type_name, inputs, output_types, name=scope,
+    786                          input_types=input_types, attrs=attr_protos,
+--> 787                          op_def=op_def)
+    788       return output_structure, op_def.is_stateful, op
+    789 
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\ops.py in create_op(self, op_type, inputs, dtypes, input_types, name, attrs, op_def, compute_shapes, compute_device)
+   3160         op_def=op_def)
+   3161     self._create_op_helper(ret, compute_shapes=compute_shapes,
+-> 3162                            compute_device=compute_device)
+   3163     return ret
+   3164 
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\ops.py in _create_op_helper(self, op, compute_shapes, compute_device)
+   3206     # compute_shapes argument.
+   3207     if op._c_op or compute_shapes:  # pylint: disable=protected-access
+-> 3208       set_shapes_for_outputs(op)
+   3209     # TODO(b/XXXX): move to Operation.__init__ once _USE_C_API flag is removed.
+   3210     self._add_op(op)
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\ops.py in set_shapes_for_outputs(op)
+   2425     return _set_shapes_for_outputs_c_api(op)
+   2426   else:
+-> 2427     return _set_shapes_for_outputs(op)
+   2428 
+   2429 
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\ops.py in _set_shapes_for_outputs(op)
+   2398       shape_func = _call_cpp_shape_fn_and_require_op
+   2399 
+-> 2400   shapes = shape_func(op)
+   2401   if shapes is None:
+   2402     raise RuntimeError(
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\ops.py in call_with_requiring(op)
+   2328 
+   2329   def call_with_requiring(op):
+-> 2330     return call_cpp_shape_fn(op, require_shape_fn=True)
+   2331 
+   2332   _call_cpp_shape_fn_and_require_op = call_with_requiring
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\common_shapes.py in call_cpp_shape_fn(op, require_shape_fn)
+    625     res = _call_cpp_shape_fn_impl(op, input_tensors_needed,
+    626                                   input_tensors_as_shapes_needed,
+--> 627                                   require_shape_fn)
+    628     if not isinstance(res, dict):
+    629       # Handles the case where _call_cpp_shape_fn_impl calls unknown_shape(op).
+
+~\Anaconda3\envs\dlnd\lib\site-packages\tensorflow\python\framework\common_shapes.py in _call_cpp_shape_fn_impl(op, input_tensors_needed, input_tensors_as_shapes_needed, require_shape_fn)
+    689       missing_shape_fn = True
+    690     else:
+--> 691       raise ValueError(err.message)
+    692 
+    693   if missing_shape_fn:
+
+ValueError: Dimension size must be evenly divisible by 27 but is 163840 for 'Reshape' (op: 'Reshape') with input shapes: [128,5,256], [2] and with input tensors computed as partial shapes: input[1] = [?,27].
